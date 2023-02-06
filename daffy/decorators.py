@@ -54,9 +54,18 @@ def df_out(columns: Optional[ColumnsDef] = None, strict: bool = False) -> Callab
 
 def _get_parameter(func: Callable, name: Optional[str] = None, *args: str, **kwargs: Any) -> pd.DataFrame:
     if not name:
-        if len(args) == 0:
-            return None
-        return args[0]
+        dataframe_args = [arg for arg in args if isinstance(arg, pd.DataFrame)]
+        dataframe_kwargs = [kwarg for kwarg in kwargs.values() if isinstance(kwarg, pd.DataFrame)]
+        if len(dataframe_args) + len(dataframe_kwargs) > 1:
+            raise AssertionError(
+                "If the function has more than one dataframe as parameter, "
+                "the names must be specified in the decorator"
+            )
+        if len(dataframe_args) == 1:
+            return dataframe_args[0]
+        if len(dataframe_kwargs) == 1:
+            return dataframe_kwargs[0]
+        return None
 
     if name and (name not in kwargs):
         func_params_in_order = list(inspect.signature(func).parameters.keys())

@@ -257,6 +257,22 @@ def test_multiple_named_inputs_with_some_of_names_in_function_call(
     test_fn(basic_df, ext_cars=extended_df)
 
 
+def test_unnamed_input_with_no_name_in_function_call(basic_df: pd.DataFrame) -> None:
+    @df_in(columns=["Brand", "Price"])
+    def test_fn(cars: pd.DataFrame) -> int:
+        return len(cars)
+
+    test_fn(cars=basic_df)
+
+
+def test_unnamed_input_as_second_positional_argument(basic_df: pd.DataFrame) -> None:
+    @df_in(columns=["Brand", "Price"])
+    def test_fn(add_to_cars: int, cars: pd.DataFrame) -> int:
+        return add_to_cars + len(cars)
+
+    test_fn(3, basic_df)
+
+
 def test_log_df(basic_df: pd.DataFrame, mocker: MockerFixture) -> None:
     @df_log()
     def test_fn(foo_df: pd.DataFrame) -> pd.DataFrame:
